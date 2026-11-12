@@ -32,7 +32,7 @@ function drawBeads(s){
  gradient('bead-now',[['0%','#fffbe2'],['34%','#ffe9a2'],['70%','#e2ad40'],['100%','#92611f']]);
  const metal=element(defs,'linearGradient',{id:'metal',x1:'0%',y1:'0%',x2:'100%',y2:'100%'});[['0%','#735221'],['28%','#f7d789'],['58%','#a77831'],['100%','#f3d68a']].forEach(([offset,color])=>element(metal,'stop',{offset,'stop-color':color}));
  const point = slot => {
-  const angle = slot * Math.PI / 6 - Math.PI / 2;
+  const angle = slot * Math.PI / 6 + Math.PI / 2;
   return {x:170 + 119 * Math.cos(angle), y:143 + 112 * Math.sin(angle)};
  };
  const track = Array.from({length:12}, (_, slot) => point(slot));
