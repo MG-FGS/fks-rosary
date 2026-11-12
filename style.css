@@ -13,3 +13,13 @@
 @keyframes bead-breathe{0%,100%{filter:drop-shadow(0 0 4px #e8b64b)}50%{filter:drop-shadow(0 0 11px #e8b64b) drop-shadow(0 0 5px #f7d37b)}}
 .bead-center{top:43%}.bead-center strong{font-size:27px}
 @media(prefers-reduced-motion:reduce){.rosary-bead.active{animation:none}.rosary-bead{transition:none}}
+
+.bead-number {
+  fill: #241b12;
+  font: 700 12px system-ui, sans-serif;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.rosary-bead.completed .bead-number { fill: #fff; }
+.rosary-bead:not([role="button"]) { cursor: default; }

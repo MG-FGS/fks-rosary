@@ -21,7 +21,7 @@ function finish(){saved=null;try{localStorage.removeItem('fgs-rosary-progress-v1
 function next(){if(pos===sequence.length-1)finish();else{pos++;save();render()}}
 function back(){if(pos>0){pos--;save();render()}}
 function render(){document.documentElement.lang=settings.lang;document.body.classList.toggle('dark',settings.dark);document.body.classList.remove('normal','large','xlarge');document.body.classList.add(settings.font);const u=ui();['heroLabel','heroTitle','heroSubtitle','todayLabel','chooseLabel','homeHint','footerText','settingsTitle','fontLabel','darkLabel','fatimaLabel','seasonalLabel','settingsHint'].forEach(id=>$(id).textContent=u[id]);$('language').value=settings.lang;$('fontSize').value=settings.font;$('darkMode').checked=settings.dark;$('fatima').checked=settings.fatima;$('seasonal').checked=settings.seasonal;$('home').hidden=view!=='home';$('prayer').hidden=view!=='prayer';$('finished').hidden=view!=='finished';if(view==='home'){$('todayMystery').textContent=u.names[defaultMystery()];$('todayDay').textContent=new Intl.DateTimeFormat(settings.lang==='es'?'es-ES':'en-US',{weekday:'long',month:'long',day:'numeric'}).format(new Date());const select=$('mysterySelect'),v=select.value||defaultMystery();select.replaceChildren();for(const key of ['joyful','sorrowful','glorious','luminous']){const o=document.createElement('option');o.value=key;o.textContent=u.names[key];select.append(o)}select.value=v;$('resumeInfo').hidden=!saved;$('resumeInfo').textContent=saved?`${u.saved}: ${u.names[saved.mystery]} · ${u.progress} ${saved.pos+1}`:'';$('startBtn').textContent=saved?u.resume:u.begin;$('newBtn').hidden=!saved}
-if(view==='prayer'){const s=sequence[pos],d=s.d??0,hasDecade=s.d!==undefined;let title='',content='';if(s.key==='announce'){title=t()[mystery][d];content=t().reflections[mystery][d]}else{[title,content]=t().prayers[s.key]}$('mysteryTag').textContent=u.names[mystery];$('mysteryName').textContent=hasDecade?`${d+1}. ${t()[mystery][d]}`:u.heroTitle;$('mysteryScripture').textContent=hasDecade?t().references[mystery][d]:'';$('prayerType').textContent=s.key==='announce'?`${u.mystery} ${d+1}`:s.b?`${u.progress} ${s.b} ${u.of} 10`:s.intro?`${u.progress} ${s.intro} ${u.of} 3`:u.progress;$('prayerTitle').textContent=title;$('prayerText').textContent=content;$('progressBar').style.width=`${((pos+1)/sequence.length)*100}%`;$('progressText').textContent=`${u.progress} ${pos+1} ${u.of} ${sequence.length}`;$('decadeLabel').textContent=u.decade;$('beadCount').textContent=hasDecade?`${s.b??(s.key==='announce'?0:10)} / 10`:'✝';$('backBtn').textContent=u.back;$('backBtn').disabled=pos===0;$('nextBtn').textContent=pos===sequence.length-1?u.complete:u.next;$('homeBtn').textContent=u.home;$('reflectionToggle').hidden=!hasDecade;$('reflectionToggle').textContent=$('reflection').hidden?u.reflect:u.hideReflect;$('reflection').textContent=hasDecade?t().reflections[mystery][d]:'';drawBeads(s)}if(view==='finished'){$('finishedTitle').textContent=u.finishedTitle;$('finishedBody').textContent=u.finishedBody;$('finishHome').textContent=u.finishHome}}
+if(view==='prayer'){const s=sequence[pos],d=s.d??0,hasDecade=s.d!==undefined;let title='',content='';if(s.key==='announce'){title=t()[mystery][d];content=t().reflections[mystery][d]}else{[title,content]=t().prayers[s.key]}$('mysteryTag').textContent=u.names[mystery];$('mysteryName').textContent=hasDecade?`${d+1}. ${t()[mystery][d]}`:u.heroTitle;$('mysteryScripture').textContent=hasDecade?t().references[mystery][d]:'';$('prayerType').textContent=s.key==='announce'?`${u.mystery} ${d+1}`:s.b?`${u.progress} ${s.b} ${u.of} 10`:s.intro?`${u.progress} ${s.intro} ${u.of} 3`:u.progress;$('prayerTitle').textContent=title;$('prayerText').textContent=content;$('progressBar').style.width=`${((pos+1)/sequence.length)*100}%`;$('progressText').textContent=`${u.progress} ${pos+1} ${u.of} ${sequence.length}`;$('decadeLabel').textContent=u.decade;$('beadCount').textContent=hasDecade?`${s.b??(['announce','our'].includes(s.key)?0:10)} / 10`:'✝';$('backBtn').textContent=u.back;$('backBtn').disabled=pos===0;$('nextBtn').textContent=pos===sequence.length-1?u.complete:u.next;$('homeBtn').textContent=u.home;$('reflectionToggle').hidden=!hasDecade;$('reflectionToggle').textContent=$('reflection').hidden?u.reflect:u.hideReflect;$('reflection').textContent=hasDecade?t().reflections[mystery][d]:'';drawBeads(s)}if(view==='finished'){$('finishedTitle').textContent=u.finishedTitle;$('finishedBody').textContent=u.finishedBody;$('finishHome').textContent=u.finishHome}}
 function drawBeads(s){
  const svg=$('beads'),NS='http://www.w3.org/2000/svg';svg.replaceChildren();
  const element=(parent,tag,attrs={},text)=>{const el=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));if(text!==undefined)el.textContent=text;parent.append(el);return el};
@@ -31,23 +31,75 @@ function drawBeads(s){
  gradient('bead-done',[['0%','#e9f5fa'],['40%','#93b5c7'],['80%','#4e7891'],['100%','#2d5069']]);
  gradient('bead-now',[['0%','#fffbe2'],['34%','#ffe9a2'],['70%','#e2ad40'],['100%','#92611f']]);
  const metal=element(defs,'linearGradient',{id:'metal',x1:'0%',y1:'0%',x2:'100%',y2:'100%'});[['0%','#735221'],['28%','#f7d789'],['58%','#a77831'],['100%','#f3d68a']].forEach(([offset,color])=>element(metal,'stop',{offset,'stop-color':color}));
- const pts=Array.from({length:10},(_,i)=>{const a=(i/10)*Math.PI*2-Math.PI/2;return {x:170+119*Math.cos(a),y:143+112*Math.sin(a),n:i+1}});
+ const point = slot => {
+  const angle = slot * Math.PI / 6 - Math.PI / 2;
+  return {x:170 + 119 * Math.cos(angle), y:143 + 112 * Math.sin(angle)};
+ };
+ const track = Array.from({length:12}, (_, slot) => point(slot));
+ const pts = track.slice(1, 11).map((p, i) => ({...p, n:i + 1}));
  // Individual chain segments follow the decade beads; their appearance remains consistent in dark mode.
- for(let i=0;i<10;i++){const p=pts[i],q=pts[(i+1)%10];element(svg,'path',{d:`M${p.x.toFixed(2)} ${p.y.toFixed(2)} L${q.x.toFixed(2)} ${q.y.toFixed(2)}`,fill:'none',stroke:'url(#metal)','stroke-width':4,'stroke-linecap':'round'});element(svg,'path',{d:`M${p.x.toFixed(2)} ${p.y.toFixed(2)} L${q.x.toFixed(2)} ${q.y.toFixed(2)}`,fill:'none',stroke:'#fff4c4','stroke-width':.8,opacity:.7});}
+ for(let i=0;i<track.length;i++){const p=track[i],q=track[(i+1)%track.length];element(svg,'path',{d:`M${p.x.toFixed(2)} ${p.y.toFixed(2)} L${q.x.toFixed(2)} ${q.y.toFixed(2)}`,fill:'none',stroke:'url(#metal)','stroke-width':4,'stroke-linecap':'round'});element(svg,'path',{d:`M${p.x.toFixed(2)} ${p.y.toFixed(2)} L${q.x.toFixed(2)} ${q.y.toFixed(2)}`,fill:'none',stroke:'#fff4c4','stroke-width':.8,opacity:.7});}
  // Centerpiece, hanging chain and a detailed crucifix.
  element(svg,'path',{d:'M170 255 Q166 269 170 281 L170 300',fill:'none',stroke:'url(#metal)','stroke-width':4});
  element(svg,'circle',{cx:170,cy:259,r:10,fill:'url(#metal)',stroke:'#7e5d2d','stroke-width':1.5});
  element(svg,'path',{d:'M170 252 L174 259 L170 266 L166 259 Z',fill:'#fff6d7',opacity:.9});
  element(svg,'path',{d:'M164 298 H176 V310 H184 V320 H176 V343 H164 V320 H156 V310 H164 Z',fill:'url(#metal)',stroke:'#876128','stroke-width':1.7,'stroke-linejoin':'round'});
  element(svg,'path',{d:'M170 302 V337 M160 315 H180',fill:'none',stroke:'#fff2b7','stroke-width':1.4,opacity:.9});
- const current=s.b||0,hasDecade=s.d!==undefined;
- for(const p of pts){const active=hasDecade&&s.key==='hail'&&current===p.n,completed=hasDecade&&(s.key==='glory'||s.key==='fatima'||(s.key==='hail'&&current>p.n));
- const group=element(svg,'g',{class:`rosary-bead${active?' active':''}${completed?' completed':''}`,tabindex:hasDecade?'0':'-1',role:'button','aria-label':`${settings.lang==='es'?'Ave María':'Hail Mary'} ${p.n}${active?' • '+(settings.lang==='es'?'actual':'current'):''}`});
- element(group,'circle',{cx:p.x,cy:p.y,r:active?16:13,fill:active?'url(#bead-now)':completed?'url(#bead-done)':'url(#bead-idle)',stroke:active?'#f4d17d':'#b89a66','stroke-width':active?2.8:1.6,class:'bead-ring'});
- element(group,'ellipse',{cx:p.x-4,cy:p.y-5,rx:active?4.6:3.4,ry:active?3.5:2.6,fill:'#ffffff',opacity:active?.8:.56});
- if(active)element(group,'circle',{cx:p.x,cy:p.y,r:20,fill:'none',stroke:'#e9ba54','stroke-width':1.6,opacity:.8});
- group.addEventListener('click',()=>jumpBead(s,p.n));group.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();jumpBead(s,p.n)}});
+ const hasDecade = s.d !== undefined;
+ const current = s.b ?? s.intro ?? 0;
+ const closing = s.key === 'glory' || s.key === 'fatima';
+ svg.setAttribute('aria-label', settings.lang === 'es' ? 'Cuentas del Rosario' : 'Rosary beads');
+
+ function marker(p, label, active, completed, radius, number) {
+  const group = element(svg, 'g', {
+   class: `rosary-bead${active ? ' active' : ''}${completed ? ' completed' : ''}`,
+   'aria-label': label
+  });
+  if (active) group.setAttribute('aria-current', 'step');
+  const fill = active ? 'bead-now' : completed ? 'bead-done' : 'bead-idle';
+  element(group, 'title', {}, label);
+  element(group, 'circle', {cx:p.x, cy:p.y, r:radius, fill:`url(#${fill})`,
+   stroke:active ? '#f4d17d' : '#b89a66', 'stroke-width':active ? 2.8 : 1.6, class:'bead-ring'});
+  if (number) element(group, 'text', {x:p.x, y:p.y, class:'bead-number', 'aria-hidden':'true'}, number);
+  if (active) element(group, 'circle', {cx:p.x, cy:p.y, r:radius + 4,
+   fill:'none', stroke:'#e9ba54', 'stroke-width':1.6});
+  return group;
  }
+
+ marker(track[0], t().prayers.our[0], s.key === 'our', current > 0 || closing, 17);
+ marker(track[11], t().prayers[closing ? s.key : 'glory'][0], closing, false, 14);
+ for (const p of pts) {
+  const inSequence = hasDecade || p.n <= 3;
+  const active = inSequence && s.key === 'hail' && current === p.n;
+  const completed = inSequence && (closing || (s.key === 'hail' && current > p.n));
+  const group = marker(p, `${t().prayers.hail[0]} ${p.n}`, active, completed, 13,
+   hasDecade ? p.n : undefined);
+  if (!hasDecade) continue;
+  group.setAttribute('tabindex', '0');
+  group.setAttribute('role', 'button');
+  group.addEventListener('click', () => jumpBead(s, p.n));
+  group.addEventListener('keydown', e => {
+   if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    jumpBead(s, p.n);
+    $('beads').querySelector('[aria-current="step"]').focus();
+   }
+  });
+ }
+
 }
 function jumpBead(s,i){if(s.d===undefined)return;const target=sequence.findIndex(v=>v.d===s.d&&v.key==='hail'&&v.b===i);if(target>=0){pos=target;save();render()}}
-$('settingsBtn').onclick=()=>$('settingsDialog').showModal();$('closeSettings').onclick=()=>$('settingsDialog').close();$('settingsDialog').addEventListener('click',e=>{if(e.target===$('settingsDialog'))$('settingsDialog').close()});function update(){settings={lang:$('language').value,font:$('fontSize').value,dark:$('darkMode').checked,fatima:$('fatima').checked,seasonal:$('seasonal').checked};store('fgs-rosary-settings-v1',settings);if(view==='prayer'){const old=sequence[pos];sequence=build();const target=sequence.findIndex(v=>v.key===old.key&&v.d===old.d&&v.b===old.b&&v.intro===old.intro);pos=target<0?Math.min(pos,sequence.length-1):target;save()}render()}['language','fontSize','darkMode','fatima','seasonal'].forEach(id=>$(id).addEventListener('change',update));$('startBtn').onclick=()=>start(false);$('newBtn').onclick=()=>{if(confirm(settings.lang==='es'?'¿Comenzar un Rosario nuevo? Se reemplazará el progreso anterior.':'Start a new Rosary? Your previous progress will be replaced.'))start(true)};$('homeBtn').onclick=()=>{view='home';render()};$('backBtn').onclick=back;$('nextBtn').onclick=next;$('finishHome').onclick=()=>{view='home';render()};$('reflectionToggle').onclick=()=>{$('reflection').hidden=!$('reflection').hidden;$('reflectionToggle').textContent=$('reflection').hidden?ui().reflect:ui().hideReflect};render();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+$('settingsBtn').onclick=()=>$('settingsDialog').showModal();$('closeSettings').onclick=()=>$('settingsDialog').close();$('settingsDialog').addEventListener('click',e=>{if(e.target===$('settingsDialog'))$('settingsDialog').close()});function update(){const old=build()[view==='prayer'?pos:saved?.pos];settings={lang:$('language').value,font:$('fontSize').value,dark:$('darkMode').checked,fatima:$('fatima').checked,seasonal:$('seasonal').checked};store('fgs-rosary-settings-v1',settings);if(old && (view==='prayer' || saved)){
+ const updated = build();
+ const key = old.key === 'fatima' && !settings.fatima ? 'glory' : old.key;
+ const target = updated.findIndex(step =>
+  step.key === key && step.d === old.d && step.b === old.b && step.intro === old.intro);
+ if(view==='prayer'){
+  sequence = updated;
+  pos = target;
+  save();
+ }else{
+  saved = {...saved, pos:target};
+  store('fgs-rosary-progress-v1',saved);
+ }
+}render()}['language','fontSize','darkMode','fatima','seasonal'].forEach(id=>$(id).addEventListener('change',update));$('startBtn').onclick=()=>start(false);$('newBtn').onclick=()=>{if(confirm(settings.lang==='es'?'¿Comenzar un Rosario nuevo? Se reemplazará el progreso anterior.':'Start a new Rosary? Your previous progress will be replaced.'))start(true)};$('homeBtn').onclick=()=>{view='home';render()};$('backBtn').onclick=back;$('nextBtn').onclick=next;$('finishHome').onclick=()=>{view='home';render()};$('reflectionToggle').onclick=()=>{$('reflection').hidden=!$('reflection').hidden;$('reflectionToggle').textContent=$('reflection').hidden?ui().reflect:ui().hideReflect};render();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
